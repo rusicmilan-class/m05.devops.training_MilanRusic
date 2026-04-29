@@ -62,3 +62,4 @@ blocks:
             - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
             - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
+            - echo "Done"
