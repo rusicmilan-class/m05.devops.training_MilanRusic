@@ -20,12 +20,8 @@ blocks:
       jobs:
         - name: "\U0001F7E2 Run Tests"
           commands:
-            - checkout
-            - echo "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
-            - export KUBECONFIG=$PWD/kubeconfig
             - kubectl config set-context --current --namespace=g1
             - kubectl get svc flask-app
-            - kubectl get pods
       secrets:
         - name: DOCKER_MILAN
         - name: kubeconfig
@@ -37,17 +33,14 @@ blocks:
         - name: "\U0001F4E6 Deploy to Production"
           commands:
             - checkout
+            - mkdir -p ~/.kube
+            - 'wget https://gist.githubusercontent.com/TomFern/c6121c6d7fd72faeb5b7cf0ce5a0e002/raw/9e86a4ca3ac8c8df6aa34cc661f1410711aef8bd/config -O ~/.kube/config'
             - cd 1-deployment
-            - echo "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
-            - export KUBECONFIG=$PWD/kubeconfig
-            - 'kubectl config use-context "${KUBE_CONTEXT:-$(kubectl config current-context)}"'
-            - kubectl create namespace g1 || true
-            - kubectl config set-context --current --namespace=g1
+            - kubectl create namespace "g1" || true
+            - kubectl config set-context --current --namespace="g1"
             - kubectl apply -f deployment.yml
             - kubectl apply -f service.yml
             - kubectl rollout status deployment/flask-app --timeout=180s
-            - kubectl get pods
-            - kubectl get svc flask-app
       secrets:
         - name: kubeconfig
   - name: Build and push
