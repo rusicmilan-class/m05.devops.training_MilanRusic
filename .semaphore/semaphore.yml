@@ -15,17 +15,21 @@ auto_cancel:
   queued:
     when: branch = 'main'
 blocks:
-  - name: "\U0001F9EA Test"
+  - name: "\U0001F9EA Verify"
     dependencies:
       - "\U0001F680 Deploy to Kubernetes"
     task:
       jobs:
         - name: "\U0001F7E2 Run Tests"
           commands:
-            - echo "Checking out code..."
-            - echo "Installing dependencies..."
-            - echo "Running test suite..."
-            - echo "Tests completed successfully!"
+            - checkout
+            - echo "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
+            - export KUBECONFIG=$PWD/kubeconfig
+            - kubectl config set-context --current --namespace=g1
+            - kubectl get svc flask-app
+            - kubectl get pods
+      secrets:
+        - name: kubeconfig
   - name: "\U0001F680 Deploy to Kubernetes"
     dependencies:
       - Build and push
