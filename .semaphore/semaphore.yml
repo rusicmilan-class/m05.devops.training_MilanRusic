@@ -27,6 +27,7 @@ blocks:
             - kubectl get svc flask-app
             - kubectl get pods
       secrets:
+        - name: DOCKER_MILAN
         - name: kubeconfig
   - name: "\U0001F680 Deploy to Kubernetes"
     dependencies:
@@ -59,7 +60,7 @@ blocks:
           commands:
             - checkout
             - cd 1-deployment
-            - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
-            - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - 'docker build -t "$DOCKER_USERNAME/my-flask-image:latest" .'
+            - 'docker push "$DOCKER_USERNAME/my-flask-image:latest"'
             - echo "Done"
