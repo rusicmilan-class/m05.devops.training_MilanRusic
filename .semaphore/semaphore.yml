@@ -16,7 +16,8 @@ auto_cancel:
     when: branch = 'main'
 blocks:
   - name: "\U0001F9EA Test"
-    dependencies: []
+    dependencies:
+      - "\U0001F680 Deploy to Kubernetes"
     task:
       jobs:
         - name: "\U0001F7E2 Run Tests"
@@ -25,20 +26,29 @@ blocks:
             - echo "Installing dependencies..."
             - echo "Running test suite..."
             - echo "Tests completed successfully!"
-  - name: "\U0001F680 Deploy"
+  - name: "\U0001F680 Deploy to Kubernetes"
     dependencies:
-      - "\U0001F9EA Test"
+      - Build and push
     task:
       jobs:
         - name: "\U0001F4E6 Deploy to Production"
           commands:
-            - echo "Building application..."
-            - echo "Running security checks..."
-            - echo "Deploying to production..."
-            - echo "Deployment completed successfully!"
+            - checkout
+            - cd 1-deployment
+            - echo "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
+            - export KUBECONFIG=$PWD/kubeconfig
+            - 'kubectl config use-context "${KUBE_CONTEXT:-$(kubectl config current-context)}"'
+            - kubectl create namespace g1 || true
+            - kubectl config set-context --current --namespace=g1
+            - kubectl apply -f deployment.yml
+            - kubectl apply -f service.yml
+            - kubectl rollout status deployment/flask-app --timeout=180s
+            - kubectl get pods
+            - kubectl get svc flask-app
+      secrets:
+        - name: kubeconfig
   - name: Build and push
-    dependencies:
-      - "\U0001F9EA Test"
+    dependencies: []
     task:
       secrets:
         - name: DOCKER_MILAN
