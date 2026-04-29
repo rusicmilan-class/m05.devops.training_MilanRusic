@@ -3,9 +3,9 @@ name: "\U0001F3AF Simple CI Pipeline"
 agent:
   machine:
     type:
-      '[object Object]': null
+      '[object Object]': e1-standard-2
     os_image:
-      '[object Object]': null
+      '[object Object]': ubuntu2004
 fail_fast:
   stop:
     when: branch != 'main'
