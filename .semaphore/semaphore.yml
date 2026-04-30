@@ -39,7 +39,6 @@ blocks:
             - kubectl config set-context --current --namespace="g1"
             - kubectl apply -f deployment.yml
             - kubectl apply -f service.yml
-            - kubectl describe deployment flask-app -n "g1"
             - kubectl rollout status deployment/flask-app --timeout=180s
       secrets:
         - name: kubeconfig
