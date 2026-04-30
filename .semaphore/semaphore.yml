@@ -12,9 +12,6 @@ auto_cancel:
     when: branch != 'main'
   queued:
     when: branch = 'main'
-promotions:
-  - name: Deploy Green
-    pipeline_file: semaphore-green.yml
 blocks:
   - name: Verify Blue
     dependencies:
@@ -59,6 +56,3 @@ blocks:
             - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
             - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
             - echo "Done"
-promotions:
-  - name: Deploy Green
-    pipeline_file: semaphore-green.yml
