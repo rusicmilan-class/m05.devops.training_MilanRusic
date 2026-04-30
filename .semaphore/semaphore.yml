@@ -40,21 +40,6 @@ blocks:
             - kubectl config set-context --current --namespace="g1"
             - kubectl apply -f deployment.yml
             - kubectl apply -f service.yml
-            - '# Debug'
-            - sleep 5
-            - kubectl get pods -n g1
-            - kubectl describe pod -n g1 -l app=flask-app
-            - kubectl logs -n g1 -l app=flask-app --tail=20 || echo "No logs yet"
-            - '# Provjeri servis'
-            - kubectl get svc flask-app
-            - '# Čekaj rollout'
-            - 'echo "=== PODS ===" '
-            - kubectl get pods -n g1 -o wide
-            - 'echo "=== DESCRIBE POD ===" '
-            - kubectl describe pod -n g1 -l app=flask-app
-            - 'echo "=== POD LOGS ===" '
-            - kubectl logs -n g1 -l app=flask-app --all-containers=true --previous=false || echo "No logs"
-            - 'echo "=== DEPLOYMENT ===" '
             - kubectl describe deployment flask-app -n g1
             - kubectl rollout status deployment/flask-app --timeout=180s
       secrets:
@@ -69,7 +54,7 @@ blocks:
           commands:
             - checkout
             - cd 1-deployment
-            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            - 'docker build -t "$DOCKER_USERNAME/my-flask-image:latest" .'
-            - 'docker push "$DOCKER_USERNAME/my-flask-image:latest"'
+            - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
+            - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
             - echo "Done"
