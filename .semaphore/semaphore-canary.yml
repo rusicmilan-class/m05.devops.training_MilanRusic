@@ -1,0 +1,35 @@
+version: v1.0
+name: "Promote to Canary"
+agent:
+  machine:
+    type: f1-standard-4
+    os_image: ubuntu2404
+
+blocks:
+  - name: Deploy Canary
+    task:
+      jobs:
+        - name: Apply Canary Manifests
+          commands:
+            - checkout
+            - mkdir -p ~/.kube
+            - 'wget https://gist.githubusercontent.com/TomFern/c6121c6d7fd72faeb5b7cf0ce5a0e002/raw/9e86a4ca3ac8c8df6aa34cc661f1410711aef8bd/config -O ~/.kube/config'
+            - cd 3-canary-deployment
+            - kubectl config set-context --current --namespace="g1"
+            - kubectl apply -f deployment-canary.yml
+            - kubectl rollout status deployment/flask-app-canary --timeout=180s
+      secrets:
+        - name: kubeconfig
+
+  - name: Verify Canary
+    dependencies:
+      - Deploy Canary
+    task:
+      jobs:
+        - name: Check Canary Service
+          commands:
+            - checkout
+            - kubectl config set-context --current --namespace=g1
+            - kubectl get svc flask-app
+      secrets:
+        - name: kubeconfig

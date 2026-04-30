@@ -1,5 +1,5 @@
 version: v1.0
-name: "\U0001F3AF Simple CI Pipeline"
+name: "Canary CI Pipeline"
 agent:
   machine:
     type: f1-standard-4
@@ -13,36 +13,36 @@ auto_cancel:
   queued:
     when: branch = 'main'
 promotions:
-  - name: Deploy Green
-    pipeline_file: semaphore-green.yml
+  - name: Deploy Canary
+    pipeline_file: semaphore-canary.yml
 blocks:
-  - name: Verify Blue
+  - name: Verify Stable
     dependencies:
-      - Deploy Blue
+      - Deploy Stable
     task:
       jobs:
-        - name: Check Blue Service
+        - name: Check Stable Service
           commands:
             - checkout
             - kubectl config set-context --current --namespace=g1
             - kubectl get svc flask-app
       secrets:
         - name: kubeconfig
-  - name: Deploy Blue
+  - name: Deploy Stable
     dependencies:
       - Build and push
     task:
       jobs:
-        - name: Apply Blue Manifests
+        - name: Apply Stable Manifests
           commands:
             - checkout
             - mkdir -p ~/.kube
             - 'wget https://gist.githubusercontent.com/TomFern/c6121c6d7fd72faeb5b7cf0ce5a0e002/raw/9e86a4ca3ac8c8df6aa34cc661f1410711aef8bd/config -O ~/.kube/config'
-            - cd 2-blue-green-deployment
+            - cd 3-canary-deployment
             - kubectl config set-context --current --namespace="g1"
-            - kubectl apply -f deployment-blue.yml
-            - kubectl apply -f service-blue.yml
-            - kubectl rollout status deployment/flask-app-blue --timeout=180s
+            - kubectl apply -f deployment-stable.yml
+            - kubectl apply -f service.yml
+            - kubectl rollout status deployment/flask-app-stable --timeout=180s
       secrets:
         - name: kubeconfig
   - name: Build and push
@@ -51,14 +51,11 @@ blocks:
       secrets:
         - name: DOCKER_MILAN
       jobs:
-        - name: 'Job #1'
+        - name: Build and Publish Image
           commands:
             - checkout
-            - cd 2-blue-green-deployment
+            - cd 3-canary-deployment
             - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
             - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
             - echo "Done"
-promotions:
-  - name: Deploy Green
-    pipeline_file: semaphore-green.yml
