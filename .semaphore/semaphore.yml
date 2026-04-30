@@ -23,7 +23,6 @@ blocks:
             - kubectl config set-context --current --namespace=g1
             - kubectl get svc flask-app
       secrets:
-        - name: DOCKER_MILAN
         - name: kubeconfig
   - name: "\U0001F680 Deploy to Kubernetes"
     dependencies:
