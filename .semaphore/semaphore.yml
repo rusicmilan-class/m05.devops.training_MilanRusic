@@ -48,6 +48,14 @@ blocks:
             - '# Provjeri servis'
             - kubectl get svc flask-app
             - '# Čekaj rollout'
+            - 'echo "=== PODS ===" '
+            - kubectl get pods -n g1 -o wide
+            - 'echo "=== DESCRIBE POD ===" '
+            - kubectl describe pod -n g1 -l app=flask-app
+            - 'echo "=== POD LOGS ===" '
+            - kubectl logs -n g1 -l app=flask-app --all-containers=true --previous=false || echo "No logs"
+            - 'echo "=== DEPLOYMENT ===" '
+            - kubectl describe deployment flask-app -n g1
             - kubectl rollout status deployment/flask-app --timeout=180s
       secrets:
         - name: kubeconfig
