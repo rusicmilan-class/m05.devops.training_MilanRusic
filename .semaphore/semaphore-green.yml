@@ -1,0 +1,37 @@
+version: v1.0
+name: "Promote to Green"
+agent:
+  machine:
+    type: f1-standard-4
+    os_image: ubuntu2404
+
+blocks:
+  - name: Deploy Green
+    task:
+      jobs:
+        - name: Apply Green Manifests
+          commands:
+            - checkout
+            - mkdir -p ~/.kube
+            - 'wget https://gist.githubusercontent.com/TomFern/c6121c6d7fd72faeb5b7cf0ce5a0e002/raw/9e86a4ca3ac8c8df6aa34cc661f1410711aef8bd/config -O ~/.kube/config'
+            - cd 2-blue-green-deployment
+            - kubectl create namespace "g1" || true
+            - kubectl config set-context --current --namespace="g1"
+            - kubectl apply -f deployment-green.yml
+            - kubectl apply -f service-green.yml
+            - kubectl rollout status deployment/flask-app-green --timeout=180s
+      secrets:
+        - name: kubeconfig
+
+  - name: Verify Green
+    dependencies:
+      - Deploy Green
+    task:
+      jobs:
+        - name: Check Green Service
+          commands:
+            - checkout
+            - kubectl config set-context --current --namespace=g1
+            - kubectl get svc flask-app
+      secrets:
+        - name: kubeconfig
