@@ -40,6 +40,14 @@ blocks:
             - kubectl config set-context --current --namespace="g1"
             - kubectl apply -f deployment.yml
             - kubectl apply -f service.yml
+            - '# Debug'
+            - sleep 5
+            - kubectl get pods -n g1
+            - kubectl describe pod -n g1 -l app=flask-app
+            - kubectl logs -n g1 -l app=flask-app --tail=20 || echo "No logs yet"
+            - '# Provjeri servis'
+            - kubectl get svc flask-app
+            - '# Čekaj rollout'
             - kubectl rollout status deployment/flask-app --timeout=180s
       secrets:
         - name: kubeconfig
