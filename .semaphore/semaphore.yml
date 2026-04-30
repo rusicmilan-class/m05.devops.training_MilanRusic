@@ -60,3 +60,6 @@ blocks:
             - 'docker build -t "$DOCKERHUB_USERNAME/my-flask-image:latest" .'
             - 'docker push "$DOCKERHUB_USERNAME/my-flask-image:latest"'
             - echo "Done"
+promotions:
+  - name: Deploy Green
+    pipeline_file: semaphore-green.yml
